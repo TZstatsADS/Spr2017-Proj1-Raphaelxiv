@@ -1,0 +1,314 @@
+---
+title: "Does Trump's inaugural speech bring us back to the 80s?"
+output:
+  html_document: default
+  html_notebook: default
+---
+### Introduction: Is Trump the new Reagan?
+
+![Donald Trump shaking hand with President Reagan](http://cdn.newsmax.com/CMSPages/GetFile.aspx?guid=2bb02f57-c48b-4d17-858d-4179c80c092f&SiteName=Newsmax&maxsidesize=600)
+
+We have never seen a president like Donald J. Trump in the entire US history ... wait what did I just say? Of course we did! 
+President Reagan (from 1981 to 1989) was also a TV star before being candidate, he was ridiculed as 'not serious candidate' and analysts said over and over that he could never win, he was also criticized as being 'extreme' and 'simplistic' and so on. They are so similar, they even share a very unique characteristic: there are the only presidents who got divorced.
+
+On the political aspect, Trump and Reagan both have defended gun rights and the Second Amendment, and the latest is considered by the men as the amendment guarantying freedom in the country. They both favors tax reduction, especially corporate taxes ; the time will tell us if Trump will beat the tax rate championships in which Reagan is the all-time MVP. They both began as a Democrat before becoming Republican and at last but not least, they share a common ground on immigration. 
+
+Now the question is, are their inaugural speeches similar? Do they reflect the same character? Indeed, the two Washington outsiders who constantly attacked the establishment, are extremely frank. They are both straight-talkers and don't hide behind political correctness. But, when it comes to their inaugural speeches, right after swearing on the bible, the message is not the same. 
+
+In this analysis we will explore their speeches and their predecessors to find convergence and divergence between the two presidents.
+
+
+## Step 0 - Check and install needed packages. Load the libraries and functions. 
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+packages.used=c("rvest", "tibble", "qdap", 
+                "sentimentr", "gplots", "dplyr",
+                "tm", "syuzhet", "factoextra", 
+                "beeswarm", "scales", "RColorBrewer",
+                "RANN", "tm", "topicmodels",'lexicon',"readxl","tidytext","wordcloud")
+
+# check packages that need to be installed.
+packages.needed=setdiff(packages.used, 
+                        intersect(installed.packages()[,1], 
+                                  packages.used))
+# install additional packages
+if(length(packages.needed)>0){
+  install.packages(packages.needed, dependencies = TRUE)
+}
+
+# load packages
+library("wordcloud")
+library("readxl")
+library("rvest")
+library("tibble")
+library("qdap")
+library("sentimentr")
+library("gplots")
+library("dplyr")
+library("tm")
+library("syuzhet")
+library("factoextra")
+library("beeswarm")
+library("scales")
+library("RColorBrewer")
+library("RANN")
+library("tm")
+library("topicmodels")
+library('lexicon')
+library("tidytext")
+set.seed(1)
+```
+
+This notebook was prepared with the following environmental settings.
+
+```{r, echo=FALSE}
+print(R.version)
+```
+
+## Step 1 - Read in the speeches of Trump and Reagan, but also their respective previous presidents Obama and Carter.
+
+```{r}
+folder.path=paste0(getwd(),"/data/InauguralSpeeches/")
+speeches=list.files(path = folder.path, pattern = "*.txt")
+speeches=speeches[c(5,6,9,41,42,33)]
+prex.out=substr(speeches, 6, nchar(speeches)-4)
+
+ff.all<-Corpus(DirSource(folder.path))
+```
+
+## Step 2 - Text formating and computation of TF-IDF weighted document-term matrices for individual speeches
+
+```{r}
+ff.all<-tm_map(ff.all, stripWhitespace)
+ff.all<-tm_map(ff.all, content_transformer(tolower))
+ff.all<-tm_map(ff.all, removeWords, stopwords("english"))
+ff.all<-tm_map(ff.all, removeWords, character(0))
+ff.all<-tm_map(ff.all, removePunctuation)
+
+# compute TF-IDF weighted document-term matrices for individual speeches
+dtm <- DocumentTermMatrix(ff.all,
+                          control = list(weighting = function(x)
+                                             weightTfIdf(x, 
+                                                         normalize =FALSE),
+                                         stopwords = TRUE))
+tdm.tidy=tidy(dtm)
+
+#subset to presidents of interest
+tdm.all.tidy = tdm.tidy
+
+tdm.tidy = subset(tdm.tidy,document %in% speeches)
+
+tdm.trump = subset(tdm.tidy,document == 'inaugDonaldJTrump-1.txt')
+tdm.obama = subset(tdm.tidy,document == "inaugBarackObama-1.txt" | document =="inaugBarackObama-2.txt")
+tdm.reagan = subset(tdm.tidy,document == "inaugRonaldReagan-1.txt" | document =="inaugRonaldReagan-2.txt")
+tdm.carter = subset(tdm.tidy,document == 'inaugJimmyCarter-1.txt')
+```
+
+## Step 3 - Analysis and Interpretations
+
+### Trump vs Reagan vs Obama vs Carter wordclouds
+
+```{r Trump vs Reagan vs Obama vs Carter, fig.height=7, fig.width=7, echo = FALSE}
+op = par(mfrow=c(2,2), mar = c(0, 0, 3, 0))
+
+wordcloud(tdm.trump$term, tdm.trump$count,
+          scale=c(2,0.5),
+          max.words=50,
+          min.freq=1,
+          random.order=FALSE,
+          rot.per=0.3,
+          use.r.layout=T,
+          random.color=FALSE,
+          colors=brewer.pal(9,"Reds"))
+title(main = 'Trump (Rep)')
+
+wordcloud(tdm.reagan$term, tdm.reagan$count,
+          scale=c(2,0.5),
+          max.words=50,
+          min.freq=1,
+          random.order=FALSE,
+          rot.per=0.3,
+          use.r.layout=T,
+          random.color=FALSE,
+          colors=brewer.pal(9,"Reds"))
+title(main = 'Reagan (Rep)')
+
+wordcloud(tdm.obama$term, tdm.obama$count,
+          scale=c(2,0.5),
+          max.words=50,
+          min.freq=1,
+          random.order=FALSE,
+          rot.per=0.3,
+          use.r.layout=T,
+          random.color=FALSE,
+          colors=brewer.pal(9,"Blues"))
+title(main = 'Obama (Dem)')
+
+wordcloud(tdm.carter$term, tdm.carter$count,
+          scale=c(2,0.5),
+          max.words=50,
+          min.freq=1,
+          random.order=FALSE,
+          rot.per=0.3,
+          use.r.layout=T,
+          random.color=FALSE,
+          colors=brewer.pal(9,"Blues"))
+title(main = 'Carter (Dem)')
+
+par(op)
+```
+
+Here is the wordclouds of Trump, Reagan, Obama and Carter inaugural speeches (Reagan and Obama delivered 2 speeches so they are combined). We can then compare Trump with Reagan wordcloud but also Trump vs Obama with Reagan vs Carter. As both Trump and Reagan are two anti-establishment politicians, it can be interesting to look at the oppositions with their predecessors Obama and Carter who are democrats.
+
+##### Trump and Reagan share a similar style
+
+- Down to earth vocabulary. They describe the economic landscape and geopolitical situation with simple and effective words like: Trump: "jobs", "factories", "workers", "trillions" (economy) "islamic", "border", "tunnels", "carnage" (geopolitics) and Reagan: "tax", "budget", "earning", "program" (economy) "nuclear", "weapon", "soviets", "kill" (geopolitics). That shows how close they want to appear to the people. They want to be understood, to have a straightforward message to the people so they use words that are tothepoint.
+- Practical speech. They both address what the average american citizen needs the most: economy and security. The focus is on what matter the most for the people.
+- Anti-establishment traits. Trump and Reagan built their speeches in contradiction with Obama and Carter speeches. Indeed, Obama and Carter are more metaphorical: "journey", "ambitions", "dream", "bible", "micah", "commitment", "spirituality". It is a totally different tone with a different purpose.
+
+### Sentiment and Strength analysis
+
+```{r sentiment analysis, echo = FALSE}
+data(hash_sentiment_nrc)
+data(hash_strength)
+
+tdm.all.tidy = merge(tdm.all.tidy, hash_sentiment_nrc, by.x = 'term', by.y = 'x')
+names(tdm.all.tidy)[dim(tdm.all.tidy)[2]] = 'sentiment'
+tdm.all.tidy = merge(tdm.all.tidy, hash_strength, by.x = 'term', by.y = 'x')
+names(tdm.all.tidy)[dim(tdm.all.tidy)[2]] = 'strength'
+
+tdm.tidy = merge(tdm.tidy, hash_sentiment_nrc, by.x = 'term', by.y = 'x')
+names(tdm.tidy)[dim(tdm.tidy)[2]] = 'sentiment'
+tdm.tidy = merge(tdm.tidy, hash_strength, by.x = 'term', by.y = 'x')
+names(tdm.tidy)[dim(tdm.tidy)[2]] = 'strength'
+
+tdm.all.tidy$sentiment = tdm.all.tidy$count * tdm.all.tidy$sentiment
+tdm.all.tidy$strength = tdm.all.tidy$count * tdm.all.tidy$strength
+
+tdm.tidy$sentiment = tdm.tidy$count * tdm.tidy$sentiment
+tdm.tidy$strength = tdm.tidy$count * tdm.tidy$strength
+
+### useless
+tdm.trump = subset(tdm.tidy,document == 'inaugDonaldJTrump-1.txt')
+tdm.obama = subset(tdm.tidy,document == "inaugBarackObama-1.txt" | document =="inaugBarackObama-2.txt")
+tdm.reagan = subset(tdm.tidy,document == "inaugRonaldReagan-1.txt" | document =="inaugRonaldReagan-2.txt")
+tdm.carter = subset(tdm.tidy,document == 'inaugJimmyCarter-1.txt')
+### useless
+
+sentiment_table = data.frame(names = c('Trump','Obama', 'Reagan', 'Carter'), 
+                             sentiment_score = c(sum(tdm.trump$sentiment)/sum(tdm.trump$count),
+                             sum(tdm.obama$sentiment)/sum(tdm.obama$count),
+                             sum(tdm.reagan$sentiment)/sum(tdm.reagan$count),
+                             sum(tdm.carter$sentiment)/sum(tdm.carter$count)),
+                             strength_score = c(sum(tdm.trump$strength)/sum(tdm.trump$count),
+                             sum(tdm.obama$strength)/sum(tdm.obama$count),
+                             sum(tdm.reagan$strength)/sum(tdm.reagan$count),
+                             sum(tdm.carter$strength)/sum(tdm.carter$count)))
+### still useless
+
+
+tdm.all.tidy = summarise(group_by(tdm.all.tidy, document), sum(count),sum(sentiment),sum(strength))
+tdm.all.tidy$sentiment_score = tdm.all.tidy$`sum(sentiment)`/tdm.all.tidy$`sum(count)`
+tdm.all.tidy$strength_score = tdm.all.tidy$`sum(strength)`/tdm.all.tidy$`sum(count)`
+
+InaugurationInfo = read_excel(paste0(getwd(),"/data/InaugurationInfo.xlsx"))
+InaugurationInfo = arrange(InaugurationInfo, President)
+tdm.all.tidy = cbind(tdm.all.tidy,InaugurationInfo)
+cluster = kmeans(x = tdm.all.tidy[,c(5,6)], 4, nstart = 10)
+tdm.all.tidy$cluster = cluster$cluster
+
+plot(tdm.all.tidy$sentiment_score, tdm.all.tidy$strength_score, main = "Sentiment vs Strength Score For All Inaugural Speeches", xlab = "Sentiment score", ylab = "Strength score", col = tdm.all.tidy$cluster)
+legend(x = 0.545, y = 0.5, c("1","2","3","4"), pch = 1, col = c(1,2,3,4))
+text(x = 0.55, y=0.35, "Natural Clustering:", pos = 2)
+points(subset(tdm.all.tidy,document == "inaugBarackObama-1.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugBarackObama-1.txt")$strength_score, pch = 16, col = 'blue', cex = 2)
+text(subset(tdm.all.tidy,document == "inaugBarackObama-1.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugBarackObama-1.txt")$strength_score-0.03, "Obama 1")
+points(subset(tdm.all.tidy,document == "inaugBarackObama-2.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugBarackObama-2.txt")$strength_score, pch = 16, col = 'blue', cex = 2)
+text(subset(tdm.all.tidy,document == "inaugBarackObama-2.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugBarackObama-2.txt")$strength_score+0.04, "Obama 2")
+points(subset(tdm.all.tidy,document == "inaugDonaldJTrump-1.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugDonaldJTrump-1.txt")$strength_score, pch = 16, col = 'black', cex = 2)
+text(subset(tdm.all.tidy,document == "inaugDonaldJTrump-1.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugDonaldJTrump-1.txt")$strength_score+0.04, "Trump 1")
+points(subset(tdm.all.tidy,document == "inaugRonaldReagan-1.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugRonaldReagan-1.txt")$strength_score, pch = 16, col = 'red', cex = 2)
+text(subset(tdm.all.tidy,document == "inaugRonaldReagan-1.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugRonaldReagan-1.txt")$strength_score-0.03, "Reagan 1")
+points(subset(tdm.all.tidy,document == "inaugRonaldReagan-2.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugRonaldReagan-2.txt")$strength_score, pch = 16, col = 'red', cex = 2)
+text(subset(tdm.all.tidy,document == "inaugRonaldReagan-2.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugRonaldReagan-2.txt")$strength_score-0.03, "Reagan 2")
+points(subset(tdm.all.tidy,document == "inaugJimmyCarter-1.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugJimmyCarter-1.txt")$strength_score, pch = 16, col = 'green', cex = 2)
+text(subset(tdm.all.tidy,document == "inaugJimmyCarter-1.txt")$sentiment_score, subset(tdm.all.tidy,document == "inaugJimmyCarter-1.txt")$strength_score+0.04, "Carter 1")
+
+```
+
+I use the "lexicon" package to assign a sentiment and strength score (-1, 0 or 1) to each word pronunced in the speeches and then average it with the attributed weights from the TF-IDF method. That gives a sentiment and strength scores for each speech in the US history and they are plotted above. 
+
+- We notice first that a natural clustering can be done on the set of all speeches. Trump's, Reagan's and Carter's speeches are in the same cluster of (sentiment vs strength) whereas Obama is in another cluster. 
+- Carter has a biblic introduction that may have higher both his sentiment score and strength score. 
+- Reagan shows more strengh and less sentiment in his second speech as tensions with USSR increased between his first and second term. 
+- Trump uses an effective style that shows both sentiment and strength. It is similar to Reagan's style.
+- Obama emphasizes more on a metaphorical story around the journey. His speeches call the immagination of listeners and that is translated with low sentiment and strength scores.
+
+### Emotion analysis
+
+```{r lexicon, echo = FALSE}
+data(nrc_emotions)
+tdm.tidy = merge(tdm.tidy, nrc_emotions, by.x = 'term', by.y = 'term')
+
+tdm.tidy$anger = tdm.tidy$anger * tdm.tidy$count
+tdm.tidy$anticipation = tdm.tidy$anticipation * tdm.tidy$count
+tdm.tidy$disgust = tdm.tidy$disgust * tdm.tidy$count
+tdm.tidy$fear = tdm.tidy$fear * tdm.tidy$count
+tdm.tidy$joy = tdm.tidy$joy * tdm.tidy$count
+tdm.tidy$sadness = tdm.tidy$sadness * tdm.tidy$count
+tdm.tidy$surprise = tdm.tidy$surprise * tdm.tidy$count
+tdm.tidy$trust = tdm.tidy$trust * tdm.tidy$count
+
+tdm.tidy = summarise(group_by(tdm.tidy, document), sum(count),sum(sentiment),sum(strength),sum(anger),sum(anticipation), sum(disgust), sum(fear), sum(joy), sum(sadness), sum(surprise), sum(trust))
+
+names(tdm.tidy)[2:12] = c("count","sentiment","strength","anger", "anticipation", "disgust","fear","joy", "sadness", "surprise", "trust")
+tdm.tidy$document = c("Obama", "Obama", "Trump", "Carter", "Reagan", "Reagan")
+
+tdm.tidy = summarise(group_by(tdm.tidy, document), sum(count),sum(sentiment),sum(strength),sum(anger),sum(anticipation), sum(disgust), sum(fear), sum(joy), sum(sadness), sum(surprise), sum(trust))
+
+names(tdm.tidy)[2:12] = c("count","sentiment","strength","anger", "anticipation", "disgust","fear","joy", "sadness", "surprise", "trust")
+
+tdm.tidy$norm = tdm.tidy$anger + tdm.tidy$anticipation + tdm.tidy$disgust + tdm.tidy$fear + tdm.tidy$joy + tdm.tidy$sadness + tdm.tidy$surprise + tdm.tidy$trust
+
+tdm.tidy$anger = (tdm.tidy$anger )/tdm.tidy$norm
+tdm.tidy$anticipation = (tdm.tidy$anticipation )/tdm.tidy$norm
+tdm.tidy$disgust = (tdm.tidy$disgust )/tdm.tidy$norm
+tdm.tidy$fear = (tdm.tidy$fear )/tdm.tidy$norm
+tdm.tidy$joy = (tdm.tidy$joy )/tdm.tidy$norm
+tdm.tidy$sadness = (tdm.tidy$sadness)/tdm.tidy$norm
+tdm.tidy$surprise = (tdm.tidy$surprise )/tdm.tidy$norm
+tdm.tidy$trust = (tdm.tidy$trust )/tdm.tidy$norm
+
+# pie df to design visualisation
+pie = data.frame(Emotions = rep(c("anger", "anticipation", "disgust","fear","joy", "sadness", "surprise", "trust"),4))
+pie$author = 0
+pie$proportions = 0
+for(i in 1:4){
+  for(y in 1:8){
+    pie[[(i-1)*8+y,2]] = tdm.tidy$document[i]
+    pie[[(i-1)*8+y,3]] = tdm.tidy[[i,4+y]]
+  }
+}
+
+ggplot(pie, aes(x = "", y = proportions,fill = Emotions)) +
+  facet_wrap(~author) +
+  geom_col(width = 1) +
+  scale_fill_manual(values = alpha(1:8,0.6)) +
+  coord_polar("y", start = 0) +
+  labs(title = "Emotions pies")
+
+```
+
+Trump chart is a combination of high trust and joy with a low sadness and disgust. That reflects the situation Trump is in right now. Won election but with the lowest popular vote ever compare to his opponent Hilary Clinton. 
+In comparison, Reagan is more balanced over all emotions, and is more similar to Obama and Carter. 
+
+### Conclusion
+
+Reagan and Trump share a lot in their speech delivering style. They both have a direct, simple and down-to-earth style. But concerning the emotions, the inaugural speeches unveil two different men.
+Reagan won popular vote at his first election by a margin of 51-41% 
+< Here are the 1980 numbers: Ronald Reagan crushed Jimmy Carter, an incumbent president, with the popular vote, by a margin of 51-41% (47.9% for Hillary to 46.8% for Trump.). Reagan won 44 of 50 states. He took the Electoral College 489-49. Even better, the victory was part of a Reagan Revolution of serious, substantive, thoughtful ideas, a genuine governing philosophy that went along with the win. It was Reaganism, Reagan conservatism that won, not some nebulous populism-nationalism. > 
+
+
+Sources:
+
+http://www.newsmax.com/TheWire/trump-reagan-common-things/2015/08/03/id/665217/
+https://www.conservativereview.com/commentary/2016/11/trumps-win-vs-reagans-blowout-why-2016-is-not-1980#sthash.rWoYcfWN.dpuf
