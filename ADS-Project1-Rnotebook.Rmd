@@ -9,13 +9,13 @@ output:
 ![Donald Trump shaking hand with President Reagan](http://cdn.newsmax.com/CMSPages/GetFile.aspx?guid=2bb02f57-c48b-4d17-858d-4179c80c092f&SiteName=Newsmax&maxsidesize=600)
 
 We have never seen a president like Donald J. Trump in the entire US history ... wait what did I just say? Of course we did! 
-President Reagan (from 1981 to 1989) was also a TV star before being candidate, he was ridiculed as 'not serious candidate' and analysts said over and over that he could never win, he was also criticized as being 'extreme' and 'simplistic' and so on. They are so similar, they even share a very unique characteristic: there are the only presidents who got divorced.
+President Reagan (from 1981 to 1989) was also a TV star, he was also ridiculed as 'not serious candidate' and analysts said over and over that he could never win, he was also criticized as being 'extreme' and 'simplistic' and so on. They are so similar, they even share a very unique characteristic: there are the only presidents who got divorced.
 
-On the political aspect, Trump and Reagan both have defended gun rights and the Second Amendment, and the latest is considered by the men as the amendment guarantying freedom in the country. They both favors tax reduction, especially corporate taxes ; the time will tell us if Trump will beat the tax rate championships in which Reagan is the all-time MVP. They both began as a Democrat before becoming Republican and at last but not least, they share a common ground on immigration. 
+On the political aspect, Trump and Reagan both have defended gun rights and the Second Amendment, and the latest is considered by the men as the amendment guarantying freedom in the country. They both favors tax reduction, especially corporate taxes ; the time will tell us if Trump will beat the tax rate highscore (or lowscore in that case) in which Reagan is the all-time MVP. They both began as a Democrat before becoming Republican and at last but not least, they share a common ground on immigration. 
 
-Now the question is, are their inaugural speeches similar? Do they reflect the same character? Indeed, the two Washington outsiders who constantly attacked the establishment, are extremely frank. They are both straight-talkers and don't hide behind political correctness. But, when it comes to their inaugural speeches, right after swearing on the bible, the message is not the same. 
+Now the question is, are their inaugural speeches similar? Do they reflect the same character? Indeed, the two Washington outsiders who constantly attacked the establishment, are extremely frank. They are both straight-talkers and don't hide behind political correctness. But, when it comes to their inaugural speeches, right after swearing on the bible, the message is different. 
 
-In this analysis we will explore their speeches and their predecessors to find convergence and divergence between the two presidents.
+In this analysis we will explore their speeches and their predecessors' in order to find convergence and divergence between the two presidents.
 
 
 ## Step 0 - Check and install needed packages. Load the libraries and functions. 
@@ -162,9 +162,10 @@ Here is the wordclouds of Trump, Reagan, Obama and Carter inaugural speeches (Re
 
 ##### Trump and Reagan share a similar style
 
-- Down to earth vocabulary. They describe the economic landscape and geopolitical situation with simple and effective words like: Trump: "jobs", "factories", "workers", "trillions" (economy) "islamic", "border", "tunnels", "carnage" (geopolitics) and Reagan: "tax", "budget", "earning", "program" (economy) "nuclear", "weapon", "soviets", "kill" (geopolitics). That shows how close they want to appear to the people. They want to be understood, to have a straightforward message to the people so they use words that are tothepoint.
-- Practical speech. They both address what the average american citizen needs the most: economy and security. The focus is on what matter the most for the people.
-- Anti-establishment traits. Trump and Reagan built their speeches in contradiction with Obama and Carter speeches. Indeed, Obama and Carter are more metaphorical: "journey", "ambitions", "dream", "bible", "micah", "commitment", "spirituality". It is a totally different tone with a different purpose.
+- Down to earth vocabulary. They describe the economic landscape and geopolitical situation with simple and effective words like: Trump: "jobs", "factories", "workers", "trillions" (economy) "islamic", "border", "tunnels", "carnage" (geopolitics) and Reagan: "tax", "budget", "earning", "program" (economy) "nuclear", "weapon", "soviets", "kill" (geopolitics). That shows how close they want to appear to the people. They want to be understood, to have a straightforward message to the people and the to the point vocabulary shows it.
+- "Practical" speeches. They both address what the average american citizen needs the most: economy and security. The focus is on what matter the most for the people.
+- Anti-establishment traits. Trump and Reagan built their speeches in contradiction with Obama and Carter speeches. Indeed, Obama and Carter are more metaphorical: "journey", "ambitions", "dream", "bible", "micah", "commitment", "spirituality". It is a totally different tone with a different purpose. We directly link that with the political landscape of the 80s and more recently with Trump election. Both man took avantage of a tiredness of the political system, and having an effective without politically correct terminology was in both cases a good strategy (style) to get elected.
+
 
 ### Sentiment and Strength analysis
 
@@ -235,13 +236,15 @@ text(subset(tdm.all.tidy,document == "inaugJimmyCarter-1.txt")$sentiment_score, 
 
 ```
 
-I use the "lexicon" package to assign a sentiment and strength score (-1, 0 or 1) to each word pronunced in the speeches and then average it with the attributed weights from the TF-IDF method. That gives a sentiment and strength scores for each speech in the US history and they are plotted above. 
+I use the "lexicon" package to assign a sentiment and strength score (-1, 0 or 1) to each word pronunced in the speeches and then average it with the attributed weights from the TF-IDF method. That gives a sentiment and strength scores for each speech in the US history and thefigure above show the sentiment vs strength score. 
 
-- We notice first that a natural clustering can be done on the set of all speeches. Trump's, Reagan's and Carter's speeches are in the same cluster of (sentiment vs strength) whereas Obama is in another cluster. 
-- Carter has a biblic introduction that may have higher both his sentiment score and strength score. 
+- We notice first that a "natural"" clustering (I use k-mean) can be done on the set of all speeches. Trump's, Reagan's and Carter's speeches are in the same cluster of (sentiment vs strength) whereas Obama is in another cluster. 
+- Carter has a biblic introduction that may have strengthen both his sentiment and strength score. 
 - Reagan shows more strengh and less sentiment in his second speech as tensions with USSR increased between his first and second term. 
 - Trump uses an effective style that shows both sentiment and strength. It is similar to Reagan's style.
 - Obama emphasizes more on a metaphorical story around the journey. His speeches call the immagination of listeners and that is translated with low sentiment and strength scores.
+
+Again, this graph show similarities between Reagan and Trump speeches. they are in the same cluster, Trump incorporate both Reagan's highest strengh and highest sentiment.
 
 ### Emotion analysis
 
@@ -298,16 +301,15 @@ ggplot(pie, aes(x = "", y = proportions,fill = Emotions)) +
 
 ```
 
-Trump chart is a combination of high trust and joy with a low sadness and disgust. That reflects the situation Trump is in right now. Won election but with the lowest popular vote ever compare to his opponent Hilary Clinton. 
-In comparison, Reagan is more balanced over all emotions, and is more similar to Obama and Carter. 
+First observation is that Trump has the most unbalanced speech of all presidents here and, Reagan emotions are more similar to the ones given by arter and Obama. In details, Trump chart is a combination of high trust and joy with a low sadness and disgust. That reflects the situation Trump is at the moment of the speech. He just won the election with the lowest popular vote ever compare to his opponent. So, this speech is an opportunity to inspire trust, make people dream of joy and strengthen his program in which there is no disgust and no sadness. This is a big difference with president Reagan and that show how different the situation of the two characters are and that let us expect for a different term for Trump that we experienced with Reagan. 
+
 
 ### Conclusion
 
-Reagan and Trump share a lot in their speech delivering style. They both have a direct, simple and down-to-earth style. But concerning the emotions, the inaugural speeches unveil two different men.
-Reagan won popular vote at his first election by a margin of 51-41% 
-< Here are the 1980 numbers: Ronald Reagan crushed Jimmy Carter, an incumbent president, with the popular vote, by a margin of 51-41% (47.9% for Hillary to 46.8% for Trump.). Reagan won 44 of 50 states. He took the Electoral College 489-49. Even better, the victory was part of a Reagan Revolution of serious, substantive, thoughtful ideas, a genuine governing philosophy that went along with the win. It was Reaganism, Reagan conservatism that won, not some nebulous populism-nationalism. > 
+Reagan and Trump share a lot in their speech delivering style. They are both straight-talkers and use the same techniques to call to mind people. But concerning the emotions, the inaugural speeches unveil two different men.
+Reagan won popular vote at his first election by a margin of 51-41% whereas Trump has only 46.8% (lowest score compare to the opponent in history). Ronald Reagan crushed Jimmy Carter whereas Trump struggled to beat Hillary Clinton considered by the weakest possible democrat facing Donald Trump. That explains why we see so much words related to trust in Trump speech. He terribly needs trusts from the people to start his term.
 
-![](http://www.patriotics.com/media/catalog/product/cache/4/image/9df78eab33525d08d6e5fb8d27136e95/p/r/presdents-collectibles130.jpg =100x100)
+![](http://www.patriotics.com/media/catalog/product/cache/4/image/9df78eab33525d08d6e5fb8d27136e95/p/r/presdents-collectibles130.jpg)
 
 Sources:
 

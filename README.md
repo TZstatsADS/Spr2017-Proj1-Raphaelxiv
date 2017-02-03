@@ -13,6 +13,8 @@ Term: Spring 2017
 
 + Project summary: President Trump and President Reagan have a lot in common, from their straight talk style to their politics in economy and immigration. In this analysis, I explore their inaugural speeches to assess if their likelihood stand as presidents as well as candidates.
 
+Please set your working directory on the folder containing this file and open the "ADS-Project1-Rnotebook.Rmd" document to access the analysis.
+
 This folder is organized as follows.
 
 ```
